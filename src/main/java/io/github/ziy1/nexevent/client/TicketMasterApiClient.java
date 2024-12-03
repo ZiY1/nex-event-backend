@@ -10,49 +10,59 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class TicketMasterApiClient {
-    private final WebClient webClient;
+  private final WebClient webClient;
 
-    @Value("${ticketmaster.base-url}")
-    private String baseUrl;
+  @Value("${ticketmaster.base-url}")
+  private String baseUrl;
 
-    @Value("${ticketmaster.api-key}")
-    private String apiKey;
+  @Value("${ticketmaster.api-key}")
+  private String apiKey;
 
-    @Value("${ticketmaster.default-keyword}")
-    private String defaultKeyword;
+  @Value("${ticketmaster.default-keyword}")
+  private String defaultKeyword;
 
-    @Value("${ticketmaster.default-radius}")
-    private String radius;
+  @Value("${ticketmaster.default-radius}")
+  private String radius;
 
-    public TicketMasterApiClient(WebClient webClient) {
-        this.webClient = webClient;
-    }
+  public TicketMasterApiClient(WebClient webClient) {
+    this.webClient = webClient;
+  }
 
-    public TicketMasterApiResponseDto searchNearByEvents(Double latitude, Double longitude, String keyword) {
-        String geoHash = GeoHashUtil.encodeGeohash(latitude, longitude, 8);
-        String apiUrl = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .queryParam("apikey", apiKey)
-                .queryParam("geoPoint", geoHash)
-                .queryParam("keyword", (keyword != null && !keyword.isEmpty()) ? keyword : defaultKeyword)
-                .queryParam("radius", radius)
-                .toUriString();
+  public TicketMasterApiResponseDto searchNearByEvents(
+      Double latitude, Double longitude, String keyword) {
+    String geoHash = GeoHashUtil.encodeGeohash(latitude, longitude, 8);
+    String apiUrl =
+        UriComponentsBuilder.fromHttpUrl(baseUrl)
+            .queryParam("apikey", apiKey)
+            .queryParam("geoPoint", geoHash)
+            .queryParam(
+                "keyword", (keyword != null && !keyword.isEmpty()) ? keyword : defaultKeyword)
+            .queryParam("radius", radius)
+            .toUriString();
 
-        return webClient.get()
-                .uri(apiUrl)
-                .retrieve()
-                .bodyToMono(TicketMasterApiResponseDto.class)
-                .map(this::normalizeIds)
-                .block();
-    }
+    return webClient
+        .get()
+        .uri(apiUrl)
+        .retrieve()
+        .bodyToMono(TicketMasterApiResponseDto.class)
+        .map(this::normalizeIds)
+        .block();
+  }
 
-    private TicketMasterApiResponseDto normalizeIds(TicketMasterApiResponseDto response) {
-        if (response != null && response.getEmbedded() != null && response.getEmbedded().getEvents() != null) {
-            response.getEmbedded().getEvents().forEach(event -> {
+  private TicketMasterApiResponseDto normalizeIds(TicketMasterApiResponseDto response) {
+    if (response != null
+        && response.getEmbedded() != null
+        && response.getEmbedded().getEvents() != null) {
+      response
+          .getEmbedded()
+          .getEvents()
+          .forEach(
+              event -> {
                 if (event != null) {
-                    event.setId(IdNormalizerUtil.normalize(event.getId()));
+                  event.setId(IdNormalizerUtil.normalize(event.getId()));
                 }
-            });
-        }
-        return response;
+              });
     }
+    return response;
+  }
 }

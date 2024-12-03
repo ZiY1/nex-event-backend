@@ -9,16 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseMessage<Void>> handleException(Exception ex, HttpServletRequest request) {
-        log.error("Exception: ", ex);
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ResponseMessage<Void>> handleException(
+      Exception ex, HttpServletRequest request) {
+    log.error("Exception: ", ex);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseMessage.error(request.getRequestURI(), ex.getMessage()));
-    }
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ResponseMessage.error(request.getRequestURI(), ex.getMessage()));
+  }
 }

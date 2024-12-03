@@ -18,55 +18,60 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final AuthService authService;
-    private final JwtTokenProvider jwtTokenProvider;
+  private final AuthService authService;
+  private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthController(AuthService authService, JwtTokenProvider jwtTokenProvider) {
-        this.authService = authService;
-        this.jwtTokenProvider = jwtTokenProvider;
+  public AuthController(AuthService authService, JwtTokenProvider jwtTokenProvider) {
+    this.authService = authService;
+    this.jwtTokenProvider = jwtTokenProvider;
+  }
+
+  @PostMapping("/register")
+  public ResponseEntity<ResponseMessage<Void>> register(
+      @Validated @RequestBody AuthRegisterRequestDto authRegisterRequestDto,
+      HttpServletRequest request) {
+    AuthRegisterRequestDto registeredUser = authService.register(authRegisterRequestDto);
+
+    if (registeredUser == null) {
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+          .body(
+              ResponseMessage.error(
+                  HttpStatus.CONFLICT,
+                  request.getRequestURI(),
+                  "User already exists with ID (case-insensitive): "
+                      + authRegisterRequestDto.userId(),
+                  null));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<ResponseMessage<Void>> register(
-            @Validated @RequestBody AuthRegisterRequestDto authRegisterRequestDto,
-            HttpServletRequest request) {
-        AuthRegisterRequestDto registeredUser = authService.register(authRegisterRequestDto);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            ResponseMessage.success("User registered successfully", request.getRequestURI(), null));
+  }
 
-        if (registeredUser == null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(ResponseMessage.error(HttpStatus.CONFLICT, request.getRequestURI(),
-                            "User already exists with ID (case-insensitive): " + authRegisterRequestDto.userId(), null));
-        }
+  @PostMapping("/login")
+  public ResponseEntity<ResponseMessage<AuthLoginResponseDto>> login(
+      @Validated @RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletRequest request) {
+    String token = authService.login(authLoginRequestDto.userId(), authLoginRequestDto.password());
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseMessage.success("User registered successfully", request.getRequestURI(), null));
+    if (token == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(
+              ResponseMessage.error(
+                  HttpStatus.UNAUTHORIZED, request.getRequestURI(), "Invalid credentials", null));
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<ResponseMessage<AuthLoginResponseDto>> login(
-            @Validated @RequestBody AuthLoginRequestDto authLoginRequestDto,
-            HttpServletRequest request) {
-        String token = authService.login(authLoginRequestDto.userId(), authLoginRequestDto.password());
+    AuthLoginResponseDto authResponse = new AuthLoginResponseDto(token);
+    return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI(), authResponse));
+  }
 
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ResponseMessage.error(HttpStatus.UNAUTHORIZED, request.getRequestURI(),
-                            "Invalid credentials", null));
-        }
+  @PostMapping("/logout")
+  public ResponseEntity<ResponseMessage<Void>> logout(HttpServletRequest request) {
+    String token = jwtTokenProvider.resolveToken(request);
 
-        AuthLoginResponseDto authResponse = new AuthLoginResponseDto(token);
-        return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI(), authResponse));
+    if (token != null) {
+      authService.logout(token);
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<ResponseMessage<Void>> logout(
-            HttpServletRequest request) {
-        String token = jwtTokenProvider.resolveToken(request);
-
-        if (token != null) {
-            authService.logout(token);
-        }
-
-        return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI()));
-    }
+    return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI()));
+  }
 }

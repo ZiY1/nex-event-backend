@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class NexEventApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(NexEventApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(NexEventApplication.class, args);
+  }
 }

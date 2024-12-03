@@ -24,6 +24,7 @@
 		<lombok.version>1.18.30</lombok.version>
 		<jwt.version>0.11.5</jwt.version>
 		<spring-dotenv.version>4.0.0</spring-dotenv.version>
+		<spotless.version>2.30.0</spotless.version>
 	</properties>
 
 	<dependencies>
@@ -124,6 +125,24 @@
 							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apply</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<java>
+						<googleJavaFormat/>
+					</java>
 				</configuration>
 			</plugin>
 		</plugins>
