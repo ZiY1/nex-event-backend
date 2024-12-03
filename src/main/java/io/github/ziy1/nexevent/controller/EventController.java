@@ -57,7 +57,7 @@ public class EventController {
     return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI(), favoriteEvents));
   }
 
-  @DeleteMapping("favorite")
+  @DeleteMapping("/favorite")
   public ResponseEntity<ResponseMessage<Void>> unsetFavoriteEvent(
       @RequestParam("event_id") String eventId, HttpServletRequest request) {
     eventService.unsetFavoriteEvent(getCurrentUserId(), eventId);
@@ -65,7 +65,7 @@ public class EventController {
     return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI()));
   }
 
-  @GetMapping("recommend")
+  @GetMapping("/recommend")
   public ResponseEntity<ResponseMessage<List<EventDto>>> getRecommendedEvents(
       @RequestParam("lat") Double latitude,
       @RequestParam("lon") Double longitude,
