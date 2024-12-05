@@ -11,6 +11,7 @@ import io.github.ziy1.nexevent.repository.CategoryRepository;
 import io.github.ziy1.nexevent.repository.EventRepository;
 import io.github.ziy1.nexevent.repository.UserRepository;
 import io.github.ziy1.nexevent.service.EventService;
+import io.github.ziy1.nexevent.util.StreamUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -54,11 +55,11 @@ public class EventServiceImpl implements EventService {
     if (apiResponse != null && apiResponse.getEmbedded() != null) {
       List<EventDto> eventDtos =
           apiResponse.getEmbedded().getEvents().stream()
+              .filter(StreamUtils.distinctByKey(TicketMasterApiResponseDto.Embedded.Event::getId))
               .map(
-                  event -> {
-                    return eventMapper.fromTicketMasterEvent(
-                        event, userFavoriteEventIds.contains(event.getId()));
-                  })
+                  event ->
+                      eventMapper.fromTicketMasterEvent(
+                          event, userFavoriteEventIds.contains(event.getId())))
               .toList();
 
       saveNearByEvents(eventDtos);
@@ -153,12 +154,15 @@ public class EventServiceImpl implements EventService {
             .toList();
 
     // Step 3: Search based on sorted category, filter out favorite events, sort by distance
+    Set<String> seenEventIds = new HashSet<>();
     List<EventDto> recommendedEvents = new ArrayList<>();
+
     for (String categoryName : sortedCategories) {
       List<EventDto> eventDtos = searchNearByEvents(userId, latitude, longitude, categoryName);
 
       eventDtos.stream()
           .filter(eventDto -> !eventDto.favorite())
+          .filter(eventDto -> seenEventIds.add(eventDto.id()))
           .sorted(Comparator.comparing(EventDto::distance))
           .forEach(recommendedEvents::add);
     }
