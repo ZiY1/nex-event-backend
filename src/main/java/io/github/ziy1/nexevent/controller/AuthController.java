@@ -51,16 +51,16 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<ResponseMessage<AuthLoginResponseDto>> login(
       @Validated @RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletRequest request) {
-    String token = authService.login(authLoginRequestDto.userId(), authLoginRequestDto.password());
+    AuthLoginResponseDto authResponse =
+        authService.login(authLoginRequestDto.userId(), authLoginRequestDto.password());
 
-    if (token == null) {
+    if (authResponse == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(
               ResponseMessage.error(
                   HttpStatus.UNAUTHORIZED, request.getRequestURI(), "Invalid credentials", null));
     }
 
-    AuthLoginResponseDto authResponse = new AuthLoginResponseDto(token);
     return ResponseEntity.ok(ResponseMessage.success(request.getRequestURI(), authResponse));
   }
 

@@ -1,5 +1,6 @@
 package io.github.ziy1.nexevent.service.impl;
 
+import io.github.ziy1.nexevent.dto.AuthLoginResponseDto;
 import io.github.ziy1.nexevent.dto.AuthRegisterRequestDto;
 import io.github.ziy1.nexevent.entity.User;
 import io.github.ziy1.nexevent.mapper.UserMapper;
@@ -49,13 +50,18 @@ public class AuthServiceImpl implements AuthService {
   }
 
   @Override
-  public String login(String userId, String password) {
+  public AuthLoginResponseDto login(String userId, String password) {
     try {
       Authentication authentication =
           authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(userId, password));
 
-      return jwtTokenProvider.generateToken(authentication);
+      User user =
+          userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+      return new AuthLoginResponseDto(
+          jwtTokenProvider.generateToken(authentication),
+          user.getFirstName() + " " + user.getLastName());
     } catch (AuthenticationException e) {
       return null;
     }
