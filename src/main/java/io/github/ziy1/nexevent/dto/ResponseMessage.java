@@ -11,10 +11,10 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponseMessage<T> {
-  @JsonProperty("status_code")
+  @JsonProperty("statusCode")
   private Integer code;
 
-  @JsonProperty("status_message")
+  @JsonProperty("statusMessage")
   private String message;
 
   @JsonProperty("payload")
