@@ -60,8 +60,9 @@ public class AuthServiceImpl implements AuthService {
           userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
       return new AuthLoginResponseDto(
-          jwtTokenProvider.generateToken(authentication),
-          user.getFirstName() + " " + user.getLastName());
+          user.getUserId(),
+          user.getFirstName() + " " + user.getLastName(),
+          jwtTokenProvider.generateToken(authentication));
     } catch (AuthenticationException e) {
       return null;
     }
