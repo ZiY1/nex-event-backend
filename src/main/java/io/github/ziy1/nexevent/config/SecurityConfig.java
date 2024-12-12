@@ -3,6 +3,7 @@ package io.github.ziy1.nexevent.config;
 import io.github.ziy1.nexevent.security.JwtAuthenticationFilter;
 import io.github.ziy1.nexevent.security.JwtTokenProvider;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,9 @@ public class SecurityConfig {
   private final JwtTokenProvider jwtTokenProvider;
   private final UserDetailsService userDetailsService;
 
+  @Value("#{'${cors.allowed-origins}'.split(',')}")
+  private List<String> allowedOrigins;
+
   public SecurityConfig(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
     this.jwtTokenProvider = jwtTokenProvider;
     this.userDetailsService = userDetailsService;
@@ -48,7 +52,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://ziy1.github.io")); // Frontend URL
+    configuration.setAllowedOrigins(allowedOrigins);
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("*"));
     configuration.setAllowCredentials(true);

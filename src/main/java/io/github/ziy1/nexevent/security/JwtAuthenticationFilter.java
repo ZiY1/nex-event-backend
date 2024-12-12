@@ -29,15 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     if (token != null && jwtTokenProvider.validateToken(token)) {
       String userId = jwtTokenProvider.getUserIdFromToken(token);
-      System.out.println("Valid token for user: " + userId);
 
       UsernamePasswordAuthenticationToken authentication =
           new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
       authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
       SecurityContextHolder.getContext().setAuthentication(authentication);
-    } else {
-      System.out.println("Invalid or missing token");
     }
 
     filterChain.doFilter(request, response);
