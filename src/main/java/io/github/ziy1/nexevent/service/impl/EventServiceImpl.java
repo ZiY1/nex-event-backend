@@ -133,6 +133,7 @@ public class EventServiceImpl implements EventService {
 
   @Override
   public List<EventDto> getRecommendedEvents(String userId, Double latitude, Double longitude) {
+    // TODO: get only favorite event ids from db
     // Step 1: Retrieve categories from favorite events and count occurrences
     Map<String, Integer> categoryCounts = new HashMap<>();
 
