@@ -1,12 +1,14 @@
 package io.github.ziy1.nexevent.mapper;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import io.github.ziy1.nexevent.dto.EventDto;
 import io.github.ziy1.nexevent.dto.TicketMasterApiResponseDto;
 import io.github.ziy1.nexevent.entity.Category;
 import io.github.ziy1.nexevent.entity.Event;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 
 @Component
 public class EventMapper {

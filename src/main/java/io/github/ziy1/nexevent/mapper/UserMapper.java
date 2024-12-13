@@ -1,9 +1,11 @@
 package io.github.ziy1.nexevent.mapper;
 
+import java.util.HashSet;
+
+import org.springframework.stereotype.Component;
+
 import io.github.ziy1.nexevent.dto.AuthRegisterRequestDto;
 import io.github.ziy1.nexevent.entity.User;
-import java.util.HashSet;
-import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {

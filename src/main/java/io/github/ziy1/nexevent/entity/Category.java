@@ -1,7 +1,9 @@
 package io.github.ziy1.nexevent.entity;
 
-import jakarta.persistence.*;
 import java.util.Set;
+
+import jakarta.persistence.*;
+
 import lombok.*;
 
 @Data

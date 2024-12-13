@@ -1,12 +1,7 @@
 package io.github.ziy1.nexevent.controller;
 
-import io.github.ziy1.nexevent.dto.AuthLoginRequestDto;
-import io.github.ziy1.nexevent.dto.AuthLoginResponseDto;
-import io.github.ziy1.nexevent.dto.AuthRegisterRequestDto;
-import io.github.ziy1.nexevent.dto.ResponseMessage;
-import io.github.ziy1.nexevent.security.JwtTokenProvider;
-import io.github.ziy1.nexevent.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.github.ziy1.nexevent.dto.AuthLoginRequestDto;
+import io.github.ziy1.nexevent.dto.AuthLoginResponseDto;
+import io.github.ziy1.nexevent.dto.AuthRegisterRequestDto;
+import io.github.ziy1.nexevent.dto.ResponseMessage;
+import io.github.ziy1.nexevent.security.JwtTokenProvider;
+import io.github.ziy1.nexevent.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")

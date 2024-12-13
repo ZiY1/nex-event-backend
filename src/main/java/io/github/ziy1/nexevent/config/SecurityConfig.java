@@ -1,8 +1,7 @@
 package io.github.ziy1.nexevent.config;
 
-import io.github.ziy1.nexevent.security.JwtAuthenticationFilter;
-import io.github.ziy1.nexevent.security.JwtTokenProvider;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import io.github.ziy1.nexevent.security.JwtAuthenticationFilter;
+import io.github.ziy1.nexevent.security.JwtTokenProvider;
 
 @Configuration
 @EnableWebSecurity

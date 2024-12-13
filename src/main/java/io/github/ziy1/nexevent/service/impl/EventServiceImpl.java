@@ -1,5 +1,10 @@
 package io.github.ziy1.nexevent.service.impl;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import io.github.ziy1.nexevent.client.TicketMasterApiClient;
 import io.github.ziy1.nexevent.dto.EventDto;
 import io.github.ziy1.nexevent.dto.TicketMasterApiResponseDto;
@@ -12,9 +17,6 @@ import io.github.ziy1.nexevent.repository.EventRepository;
 import io.github.ziy1.nexevent.repository.UserRepository;
 import io.github.ziy1.nexevent.service.EventService;
 import io.github.ziy1.nexevent.util.StreamUtils;
-import java.util.*;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 public class EventServiceImpl implements EventService {

@@ -1,15 +1,18 @@
 package io.github.ziy1.nexevent.controller;
 
-import io.github.ziy1.nexevent.dto.EventDto;
-import io.github.ziy1.nexevent.dto.ResponseMessage;
-import io.github.ziy1.nexevent.service.EventService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import io.github.ziy1.nexevent.dto.EventDto;
+import io.github.ziy1.nexevent.dto.ResponseMessage;
+import io.github.ziy1.nexevent.service.EventService;
 
 @RestController
 @RequestMapping("/events")
