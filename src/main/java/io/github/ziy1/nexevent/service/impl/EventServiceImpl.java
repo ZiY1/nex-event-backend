@@ -112,13 +112,7 @@ public class EventServiceImpl implements EventService {
 
   private List<EventDto> toEventDtosWithUserFavorites(
       TicketMasterApiResponseDto apiResponse, String userId) {
-    Set<String> userFavoriteEventIds =
-        userRepository
-            .findById(userId)
-            .map(
-                user ->
-                    user.getFavoriteEvents().stream().map(Event::getId).collect(Collectors.toSet()))
-            .orElse(new HashSet<>());
+    Set<String> userFavoriteEventIds = eventRepository.findFavoriteEventIdsByUserId(userId);
 
     if (apiResponse != null && apiResponse.getEmbedded() != null) {
       return apiResponse.getEmbedded().getEvents().stream()
@@ -196,28 +190,27 @@ public class EventServiceImpl implements EventService {
 
   @Override
   public List<EventDto> getRecommendedEvents(String userId, Double latitude, Double longitude) {
-    // TODO: get only favorite event ids from db
-    // Step 1: Retrieve categories from favorite events and count occurrences
+    // Step 1: Get all favorite event ids
+    Set<String> favoriteEventIds = eventRepository.findFavoriteEventIdsByUserId(userId);
+
+    // Step 2: Retrieve categories from favorite event ids and count occurrences
     Map<String, Integer> categoryCounts = new HashMap<>();
 
-    Set<EventDto> favoriteEventDtos = getFavoriteEvents(userId);
-    for (EventDto eventDto : favoriteEventDtos) {
-      eventDto
-          .categories()
-          .forEach(
-              category -> {
-                categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + 1);
-              });
+    for (String eventId : favoriteEventIds) {
+      Set<String> categories = eventRepository.findCategoriesByEventId(eventId);
+      for (String category : categories) {
+        categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + 1);
+      }
     }
 
-    // Step 2: Sort categories by occurrence count (most to least)
+    // Step 3: Sort categories by occurrence count (most to least)
     List<String> sortedCategories =
         categoryCounts.entrySet().stream()
             .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
             .map(Map.Entry::getKey)
             .toList();
 
-    // Step 3: Search based on sorted category, filter out favorite events, sort by distance
+    // Step 4: Search based on sorted category, filter out favorite events, sort by distance
     Set<String> seenEventIds = new HashSet<>();
     List<EventDto> recommendedEvents = new ArrayList<>();
 
