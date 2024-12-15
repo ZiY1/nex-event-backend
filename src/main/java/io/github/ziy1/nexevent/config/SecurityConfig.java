@@ -44,7 +44,20 @@ public class SecurityConfig {
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/auth/**").permitAll().anyRequest().authenticated())
+            auth ->
+                auth.requestMatchers(
+                        "/",
+                        "/index.html",
+                        "/static/**",
+                        "/favicon.ico",
+                        "/logo192.png",
+                        "/logo512.png",
+                        "/manifest.json",
+                        "/robots.txt",
+                        "/auth/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(
             new JwtAuthenticationFilter(jwtTokenProvider),
             UsernamePasswordAuthenticationFilter.class)
