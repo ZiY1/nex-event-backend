@@ -13,8 +13,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       TICKETMASTER_API_KEY: ${TICKETMASTER_API_KEY}
       JWT_SECRET: ${JWT_SECRET}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     env_file:
       - .env
@@ -34,5 +38,20 @@ services:
       retries: 5
     restart: always
 
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
 volumes:
   db_data:
+  redis_data:
