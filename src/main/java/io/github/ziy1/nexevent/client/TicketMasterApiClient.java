@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import reactor.core.publisher.Mono;
 
 import io.github.ziy1.nexevent.dto.TicketMasterApiResponseDto;
 import io.github.ziy1.nexevent.util.IdNormalizerUtil;
@@ -41,13 +44,25 @@ public class TicketMasterApiClient {
             .queryParam("radius", radius)
             .toUriString();
 
-    return webClient
-        .get()
-        .uri(apiUrl)
-        .retrieve()
-        .bodyToMono(TicketMasterApiResponseDto.class)
-        .map(this::normalizeIds)
-        .block();
+    try {
+      return webClient
+          .get()
+          .uri(apiUrl)
+          .retrieve()
+          .bodyToMono(TicketMasterApiResponseDto.class)
+          .doOnError(
+              WebClientResponseException.class, e -> log.error("API error: {}", e.getMessage()))
+          .onErrorResume(
+              e -> {
+                log.error("Error fetching events: {}", e.getMessage());
+                return Mono.empty();
+              })
+          .map(this::normalizeIds)
+          .block();
+    } catch (Exception e) {
+      log.error("Unexpected error: {}", e.getMessage());
+      return null;
+    }
   }
 
   private TicketMasterApiResponseDto normalizeIds(TicketMasterApiResponseDto response) {
