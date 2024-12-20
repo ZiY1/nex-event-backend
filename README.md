@@ -1,6 +1,10 @@
 # NexEvent Application
 
-NexEvent is a Spring Boot application designed to get neraby events, update preferences and get recommendations using a MySQL database and Redis for caching. This guide will help you set up and run the application using Docker and Docker Compose.
+NexEvent is a Spring Boot application designed to get nearby events, update preferences, and get event recommendations using a MySQL database and Redis for caching.
+
+**The application is deployed on AWS EC2 and can be accessed at: [http://ec2-3-140-233-85.us-east-2.compute.amazonaws.com:8080/](http://ec2-3-140-233-85.us-east-2.compute.amazonaws.com:8080/).**
+
+This guide will help you set up and run the application using Docker and Docker Compose.
 
 ## Prerequisites
 
@@ -63,9 +67,8 @@ docker-compose up --build
 This will start the application, MySQL database, and Redis container. The application backend will be available at `http://localhost:8080`.
 
 ### 4. Access the Application
-For your convience, I have deployed the frontend of the application in GitHub Pages.
 
-Open your web browser and navigate to [NexEvent application](https://ziy1.github.io/nex-event-frontend). You should see the NexEvent application.
+For your convenience, I have deployed the frontend of the application on GitHub Pages. Open your web browser and navigate to [NexEvent application](https://ziy1.github.io/nex-event-frontend). You should see the NexEvent application.
 
 ### 5. Stop the Application
 
