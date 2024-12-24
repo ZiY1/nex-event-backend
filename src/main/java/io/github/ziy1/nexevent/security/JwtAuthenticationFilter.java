@@ -27,16 +27,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
+
     String token = jwtTokenProvider.resolveToken(request);
 
-    if (token != null && jwtTokenProvider.validateToken(token)) {
-      String userId = jwtTokenProvider.getUserIdFromToken(token);
+    if (token != null) {
+      try {
+        if (jwtTokenProvider.validateToken(token)) {
+          String userId = jwtTokenProvider.getUserIdFromToken(token);
 
-      UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
-      authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          UsernamePasswordAuthenticationToken authentication =
+              new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-      SecurityContextHolder.getContext().setAuthentication(authentication);
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+          response.getWriter().write("Token is invalid or expired");
+          return;
+        }
+      } catch (Exception e) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("Authentication failed: " + e.getMessage());
+        return;
+      }
     }
 
     filterChain.doFilter(request, response);
