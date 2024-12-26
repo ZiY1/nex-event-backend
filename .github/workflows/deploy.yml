@@ -1,0 +1,64 @@
+name: "ci: deploy to AWS EC2"
+
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types: [deploy-backend]
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout Backend Code
+      - name: Checkout Backend Code
+        uses: actions/checkout@v3
+
+      # Checkout Frontend Code
+      - name: Checkout Frontend Code
+        uses: actions/checkout@v3
+        with:
+          repository: ZiY1/nex-event-frontend
+          path: frontend
+
+      # Build Frontend and Copy Build Files
+      - name: Build React App
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+          mkdir -p ../src/main/resources/static
+          cp -r build/* ../src/main/resources/static/
+
+      # Build Spring Boot Backend
+      - name: Build Spring Boot Backend
+        run: |
+          mvn clean package -DskipTests
+
+      # Transfer JAR to EC2
+      - name: Transfer JAR to EC2
+        env:
+          AWS_HOST: ${{ secrets.AWS_HOST }}
+          AWS_USER: ${{ secrets.AWS_USER }}
+          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+        run: |
+          echo "${AWS_PRIVATE_KEY}" > private_key.pem
+          chmod 600 private_key.pem
+          JAR_FILE=$(ls target/*.jar | grep -v .original)
+          scp -i private_key.pem $JAR_FILE ${AWS_USER}@${AWS_HOST}:~/nexevent.jar
+
+      # Restart Application with systemd
+      - name: Restart Application
+        env:
+          AWS_HOST: ${{ secrets.AWS_HOST }}
+          AWS_USER: ${{ secrets.AWS_USER }}
+          AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+        run: |
+          echo "${AWS_PRIVATE_KEY}" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -i private_key.pem ${AWS_USER}@${AWS_HOST} << 'EOF'
+          sudo systemctl restart nexevent
+          EOF
