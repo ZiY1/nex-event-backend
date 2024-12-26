@@ -24,8 +24,12 @@ jobs:
       - name: Build React App
         working-directory: frontend
         env:
-          REACT_APP_API_URL: ${{ secrets.API_URL }}
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_IPINFO_TOKEN: ${{ secrets.REACT_APP_IPINFO_TOKEN }}
         run: |
+          echo "Debugging Environment Variables:"
+          echo "REACT_APP_API_URL=${REACT_APP_API_URL}"
+          echo "REACT_APP_IPINFO_TOKEN=${REACT_APP_IPINFO_TOKEN}"
           npm install
           npm run build
           mkdir -p ../src/main/resources/static
