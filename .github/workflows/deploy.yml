@@ -27,6 +27,8 @@ jobs:
       # Build Frontend and Copy Build Files
       - name: Build React App
         working-directory: frontend
+        env:
+          REACT_APP_API_URL: ${{ secrets.API_URL }}
         run: |
           npm install
           npm run build
@@ -48,7 +50,7 @@ jobs:
           echo "${AWS_PRIVATE_KEY}" > private_key.pem
           chmod 600 private_key.pem
           JAR_FILE=$(ls target/*.jar | grep -v .original)
-          scp -i private_key.pem $JAR_FILE ${AWS_USER}@${AWS_HOST}:~/nexevent.jar
+          scp -o StrictHostKeyChecking=no -i private_key.pem $JAR_FILE ${AWS_USER}@${AWS_HOST}:~/nexevent.jar
 
       # Restart Application with systemd
       - name: Restart Application
