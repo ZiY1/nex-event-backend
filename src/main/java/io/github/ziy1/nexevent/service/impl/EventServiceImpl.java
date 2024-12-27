@@ -12,6 +12,9 @@ import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -85,28 +88,44 @@ public class EventServiceImpl implements EventService {
   }
 
   @Override
+  public Page<EventDto> searchNearByEvents(
+      String userId, Double latitude, Double longitude, String keyword, Pageable pageable) {
+    String geoHash = GeoHashUtil.encodeGeohash(latitude, longitude, geoHashPrecision);
+    List<EventDto> eventDtos = fetchAndCacheEvents(userId, geoHash, keyword);
+
+    // Pagination
+    int start = (int) pageable.getOffset();
+    int end = Math.min(start + pageable.getPageSize(), eventDtos.size());
+
+    return new PageImpl<>(eventDtos.subList(start, end), pageable, eventDtos.size());
+  }
+
   public List<EventDto> searchNearByEvents(
       String userId, Double latitude, Double longitude, String keyword) {
     String geoHash = GeoHashUtil.encodeGeohash(latitude, longitude, geoHashPrecision);
+    return fetchAndCacheEvents(userId, geoHash, keyword);
+  }
+
+  private List<EventDto> fetchAndCacheEvents(String userId, String geoHash, String keyword) {
     String cacheKey = generateCacheKey(geoHash, keyword);
 
-    // Fetch from cache
+    // Try cache first
     TicketMasterApiResponseDto cachedResponse = getEventsFromCache(cacheKey);
     if (cachedResponse != null) {
       return toEventDtosWithUserFavorites(cachedResponse, userId);
     }
 
-    // Call Ticketmaster API
+    // Call API if not cached
     TicketMasterApiResponseDto apiResponse =
         ticketMasterApiClient.searchNearByEvents(geoHash, keyword);
-
-    // Store in cache and database
     if (apiResponse != null) {
       redisTemplate.opsForValue().set(cacheKey, apiResponse, cacheTtl, TimeUnit.SECONDS);
-      saveNearByEvents(toEventDtosWithUserFavorites(apiResponse, userId));
+      List<EventDto> eventDtos = toEventDtosWithUserFavorites(apiResponse, userId);
+      saveNearByEvents(eventDtos); // Persist to DB
+      return eventDtos;
     }
 
-    return toEventDtosWithUserFavorites(apiResponse, userId);
+    return List.of();
   }
 
   private String generateCacheKey(String geoHash, String keyword) {

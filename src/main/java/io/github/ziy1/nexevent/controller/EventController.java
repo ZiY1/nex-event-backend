@@ -5,6 +5,8 @@ import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,13 +31,16 @@ public class EventController {
   }
 
   @GetMapping("/nearby")
-  public ResponseEntity<ResponseMessage<List<EventDto>>> searchNearByEvents(
+  public ResponseEntity<ResponseMessage<Page<EventDto>>> searchNearByEvents(
       @RequestParam("lat") Double latitude,
       @RequestParam("lon") Double longitude,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
       HttpServletRequest request) {
 
-    List<EventDto> events =
-        eventService.searchNearByEvents(getCurrentUserId(), latitude, longitude, null);
+    Page<EventDto> events =
+        eventService.searchNearByEvents(
+            getCurrentUserId(), latitude, longitude, null, PageRequest.of(page, size));
 
     if (events.isEmpty()) {
       return ResponseEntity.status(HttpStatus.NO_CONTENT)
